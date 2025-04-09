@@ -1,12 +1,13 @@
-export default function ExpenseList({ expenses }) {
+export default function ExpenseList({ expenses, onDelete }) {
     return (
-      <div>
-        <h2 className="text-lg font-bold">Expenses</h2>
-        <ul className="mt-2">
+      <div className="expenses">
+        <h2>Expenses</h2>
+        <ul>
           {expenses.map(expense => (
-            <li key={expense.id} className="p-2 border-b flex justify-between">
+            <li key={expense.id}>
               <span>{expense.title}</span>
-              <span className="font-bold">${expense.amount.toFixed(2)}</span>
+              <span>${expense.amount.toFixed(2)}</span>
+              <button onClick={() => onDelete(expense.id)}>Delete</button>
             </li>
           ))}
         </ul>
