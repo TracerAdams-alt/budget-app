@@ -5,8 +5,8 @@ export default function ExpenseList({ expenses, onDelete }) {
         <ul>
           {expenses.map(expense => (
             <li key={expense.id}>
-              <span>{expense.title}</span>
-              <span>${expense.amount.toFixed(2)}</span>
+              <span>{expense.title} </span>
+              <span>${expense.amount.toFixed(2)} </span>
               <button onClick={() => onDelete(expense.id)}>Delete</button>
             </li>
           ))}

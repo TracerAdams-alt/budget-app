@@ -4,6 +4,7 @@ import ExpenseList from "./components/ExpenseList";
 import ExpenseSummary from "./components/ExpenseSummary";
 import LoginPage from "./components/LoginPage";
 import IncomeTracker from "./components/IncomeTracker";
+import BalanceTracker from "./components/BalanceTracker";
 
 export default function App() {
   const [expenses, setExpenses] = useState(
@@ -12,6 +13,9 @@ export default function App() {
   const [user, setUser] = useState(
     JSON.parse(localStorage.getItem("user")) || null
   );
+  const [totalIncome, setTotalIncome] = useState(
+    JSON.parse(localStorage.getItem("totalIncome")) || 0
+  ); // ✅ Add this
 
   useEffect(() => {
     localStorage.setItem("expenses", JSON.stringify(expenses));
@@ -25,9 +29,17 @@ export default function App() {
     }
   }, [user]);
 
+  useEffect(() => {
+    localStorage.setItem("totalIncome", totalIncome);
+  }, [totalIncome]);
+
   const handleDeleteExpense = (idToDelete) => {
     setExpenses(prev => prev.filter(expense => expense.id !== idToDelete));
   };
+
+  const handleIncomeUpdate = (amount) => {
+    setTotalIncome(prev => prev + amount);
+  }; // ✅ Add this
 
   if (!user) {
     return <LoginPage onLogin={setUser} />;
@@ -35,13 +47,23 @@ export default function App() {
 
   return (
     <div className="body">
-      <div>
+      <div className="header">
         <h1 className="title">Budget Tracker</h1>
         <button className="logoutButton" onClick={() => setUser(null)}>Logout</button>
-        <ExpenseForm setExpenses={setExpenses} />
+      </div>
+  
+      <div className="topSection">
+        <IncomeTracker onIncomeUpdate={handleIncomeUpdate} />
+        <BalanceTracker income={totalIncome} expenses={expenses} />
         <ExpenseSummary expenses={expenses} />
+      </div>
+  
+      <div className="formSection">
+        <ExpenseForm setExpenses={setExpenses} />
+      </div>
+  
+      <div className="listSection">
         <ExpenseList expenses={expenses} onDelete={handleDeleteExpense} />
-        <IncomeTracker onIncomeUpdate={(amount) => setTotalIncome(prev => prev + amount)} />
       </div>
     </div>
   );

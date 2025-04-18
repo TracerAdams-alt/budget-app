@@ -74,8 +74,7 @@ const IncomeTracker = ({ onIncomeUpdate }) => {
       ) : (
         <div>
           <p>Paycheck Amount: ${parseFloat(paycheckAmount).toFixed(2)}</p>
-          <button onClick={() => setIsEditing(true)}>Edit</button>
-          <p>(A new paycheck will be added every 2 weeks automatically.)</p>
+          <button id='edit' onClick={() => setIsEditing(true)}>Edit Income Info</button>
         </div>
       )}
 
