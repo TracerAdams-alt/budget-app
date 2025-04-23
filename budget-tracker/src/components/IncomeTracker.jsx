@@ -10,13 +10,11 @@ const IncomeTracker = ({ onIncomeUpdate }) => {
     return savedHistory ? JSON.parse(savedHistory) : [];
   });
 
-  // Only check localStorage once at load time
   const [isEditing, setIsEditing] = useState(() => {
     const saved = localStorage.getItem("paycheckAmount");
     return !saved || saved === "0";
   });
 
-  // Save income data to localStorage on change
   useEffect(() => {
     localStorage.setItem("paycheckAmount", paycheckAmount);
   }, [paycheckAmount]);
@@ -25,11 +23,12 @@ const IncomeTracker = ({ onIncomeUpdate }) => {
     localStorage.setItem("incomeHistory", JSON.stringify(incomeHistory));
   }, [incomeHistory]);
 
-  // Add new income every 2 weeks
+  // Auto-add income every 2 weeks (disabled while editing)
   useEffect(() => {
     const interval = setInterval(() => {
       if (paycheckAmount && !isEditing) {
         const newIncome = {
+          id: Date.now(),
           amount: parseFloat(paycheckAmount),
           date: new Date().toLocaleDateString(),
         };
@@ -37,7 +36,7 @@ const IncomeTracker = ({ onIncomeUpdate }) => {
         setIncomeHistory(prev => [...prev, newIncome]);
         onIncomeUpdate(parseFloat(paycheckAmount));
       }
-    }, 1000 * 60 * 60 * 24 * 14); // every 2 weeks
+    }, 1000 * 60 * 60 * 24 * 14); // 2 weeks
 
     return () => clearInterval(interval);
   }, [paycheckAmount, isEditing, onIncomeUpdate]);
@@ -47,13 +46,29 @@ const IncomeTracker = ({ onIncomeUpdate }) => {
     if (!paycheckAmount || isNaN(paycheckAmount)) return;
 
     const newIncome = {
+      id: Date.now(),
       amount: parseFloat(paycheckAmount),
       date: new Date().toLocaleDateString(),
     };
 
     setIncomeHistory(prev => [...prev, newIncome]);
     onIncomeUpdate(parseFloat(paycheckAmount));
-    setIsEditing(false); // now the form disappears instantly
+    setIsEditing(false);
+    setPaycheckAmount(""); // Clear input after saving
+  };
+
+  const handleEdit = (id) => {
+    const entry = incomeHistory.find(income => income.id === id);
+    if (entry) {
+      setPaycheckAmount(entry.amount);
+      setIsEditing(true);
+      setIncomeHistory(prev => prev.filter(income => income.id !== id));
+    }
+  };
+
+  const handleDelete = (id) => {
+    const updated = incomeHistory.filter(income => income.id !== id);
+    setIncomeHistory(updated);
   };
 
   return (
@@ -81,9 +96,11 @@ const IncomeTracker = ({ onIncomeUpdate }) => {
       <div>
         <h3>Income History:</h3>
         <ul>
-          {incomeHistory.map((income, index) => (
-            <li key={index}>
+          {incomeHistory.map((income) => (
+            <li key={income.id}>
               ${income.amount.toFixed(2)} on {income.date}
+              <button onClick={() => handleEdit(income.id)}>Edit</button>
+              <button onClick={() => handleDelete(income.id)}>Delete</button>
             </li>
           ))}
         </ul>

@@ -9,21 +9,13 @@ const BalanceTracker = ({ expenses }) => {
   const [balance, setBalance] = useState(0);
 
   useEffect(() => {
-    const totalIncome = incomeHistory.reduce((sum, income) => sum + income, 0);
+    const totalIncome = incomeHistory.reduce((sum, income) => sum + income.amount, 0);
     const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
     const newBalance = totalIncome - totalExpenses;
+
     setBalance(newBalance);
     localStorage.setItem("balance", newBalance);
   }, [incomeHistory, expenses]);
-
-  // This function gets called from IncomeTracker
-  const addIncome = (amount) => {
-    setIncomeHistory(prev => {
-      const updated = [...prev, amount];
-      localStorage.setItem("incomeHistory", JSON.stringify(updated));
-      return updated;
-    });
-  };
 
   return (
     <div>
